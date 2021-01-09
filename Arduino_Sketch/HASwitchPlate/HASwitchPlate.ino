@@ -123,6 +123,15 @@ String nextionModel;                                // Record reported model num
 const byte nextionSuffix[] = {0xFF, 0xFF, 0xFF};    // Standard suffix for Nextion commands
 uint32_t tftFileSize = 0;                           // Filesize for TFT firmware upload
 uint8_t nextionResetPin = D6;                       // Pin for Nextion power rail switch (GPIO12/D6)
+//HVAC
+String mqttFanCommandTopic;                         // MQTT topic for incoming panel fan on/off commands
+String mqttFanStateTopic;                           // MQTT topic for outgoing panel fan on/off state
+String mqttHeat1CommandTopic;                       // MQTT topic for incoming panel Heat1 on/off commands
+String mqttHeat1StateTopic;                         // MQTT topic for outgoing panel Heat1 on/off state
+String mqttHeat2CommandTopic;                       // MQTT topic for incoming panel Heat2 on/off commands
+String mqttHeat2StateTopic;                         // MQTT topic for outgoing panel Heat2 on/off state
+String mqttCoolCommandTopic;                        // MQTT topic for incoming panel Cool on/off commands
+String mqttCoolStateTopic;                          // MQTT topic for outgoing panel Cool on/off state
 
 WiFiClient wifiClient;
 WiFiClient wifiMQTTClient;
@@ -146,6 +155,8 @@ String lcdFirmwareUrl = "http://haswitchplate.com/update/HASwitchPlate.tft";
 void setup()
 { // System setup
   pinMode(nextionResetPin, OUTPUT);
+  pinMode(D2, OUTPUT);
+  digitalWrite(D2, HIGH);
   digitalWrite(nextionResetPin, HIGH);
   Serial.begin(115200);  // Serial - LCD RX (after swap), debug TX
   Serial1.begin(115200); // Serial1 - LCD TX, no RX
@@ -369,11 +380,25 @@ void mqttConnect()
   mqttLightBrightCommandTopic = "hasp/" + String(haspNode) + "/brightness/set";
   mqttLightBrightStateTopic = "hasp/" + String(haspNode) + "/brightness/state";
   mqttMotionStateTopic = "hasp/" + String(haspNode) + "/motion/state";
-
+  /////////////////// HVAC ////////////////////
+  mqttFanCommandTopic = "hasp/" + String(haspNode) + "/fan/switch";
+  mqttFanStateTopic = "hasp/" + String(haspNode) + "/fan/state";
+  mqttHeat1CommandTopic = "hasp/" + String(haspNode) + "/heat1/switch";
+  mqttHeat1StateTopic = "hasp/" + String(haspNode) + "/heat1/state";
+  mqttHeat2CommandTopic = "hasp/" + String(haspNode) + "/heat2/switch";
+  mqttHeat2StateTopic = "hasp/" + String(haspNode) + "/heat2/state";
+  mqttCoolCommandTopic = "hasp/" + String(haspNode) + "/cool/switch";
+  mqttCoolStateTopic = "hasp/" + String(haspNode) + "/cool/state";
+  
   const String mqttCommandSubscription = mqttCommandTopic + "/#";
   const String mqttGroupCommandSubscription = mqttGroupCommandTopic + "/#";
   const String mqttLightSubscription = "hasp/" + String(haspNode) + "/light/#";
   const String mqttLightBrightSubscription = "hasp/" + String(haspNode) + "/brightness/#";
+  /////////////////// HVAC ////////////////////
+  const String mqttFanSubscription = "hasp/" + String(haspNode) + "/fan/#";
+  const String mqttHeat1Subscription = "hasp/" + String(haspNode) + "/heat1/#";
+  const String mqttHeat2Subscription = "hasp/" + String(haspNode) + "/heat2/#";
+  const String mqttCoolSubscription = "hasp/" + String(haspNode) + "/cool/#";
 
   // Loop until we're reconnected to MQTT
   while (!mqttClient.connected())
@@ -408,6 +433,23 @@ void mqttConnect()
       if (mqttClient.subscribe(mqttLightSubscription))
       {
         debugPrintln(String(F("MQTT: subscribed to ")) + mqttLightSubscription);
+      }
+      /////////////////// HVAC ////////////////////
+      if (mqttClient.subscribe(mqttFanSubscription))
+      {
+        debugPrintln(String(F("MQTT: subscribed to ")) + mqttFanSubscription);
+      }
+      if (mqttClient.subscribe(mqttHeat1Subscription))
+      {
+        debugPrintln(String(F("MQTT: subscribed to ")) + mqttHeat1Subscription);
+      }
+      if (mqttClient.subscribe(mqttHeat2Subscription))
+      {
+        debugPrintln(String(F("MQTT: subscribed to ")) + mqttHeat2Subscription);
+      }
+      if (mqttClient.subscribe(mqttCoolSubscription))
+      {
+        debugPrintln(String(F("MQTT: subscribed to ")) + mqttCoolSubscription);
       }
       if (mqttClient.subscribe(mqttLightBrightSubscription))
       {
@@ -600,6 +642,49 @@ void mqttCallback(String &strTopic, String &strPayload)
     nextionSendCmd("dim=dims");
     mqttClient.publish(mqttLightStateTopic, "ON");
   }
+  /////////////////// HVAC ////////////////////
+  else if (strTopic == mqttFanCommandTopic && strPayload == "OFF")
+  { /// FAN OFF ///
+    digitalWrite(D2, HIGH);
+    mqttClient.publish(mqttFanStateTopic, "OFF");
+  }
+  else if (strTopic == mqttFanCommandTopic && strPayload == "ON")
+  {  /// FAN ON ///
+    digitalWrite(D2, LOW);
+    mqttClient.publish(mqttFanStateTopic, "ON");
+  }
+  else if (strTopic == mqttHeat1CommandTopic && strPayload == "OFF")
+  { /// HEAT1 OFF ///
+    digitalWrite(D3, HIGH);
+    mqttClient.publish(mqttHeat1StateTopic, "OFF");
+  }
+  else if (strTopic == mqttHeat1CommandTopic && strPayload == "ON")
+  { /// HEAT 1 ON ///
+    digitalWrite(D3, LOW);
+    mqttClient.publish(mqttHeat1StateTopic, "ON");
+  }
+  else if (strTopic == mqttHeat2CommandTopic && strPayload == "OFF")
+  { /// HEAT2 OFF ///
+    digitalWrite(D4, HIGH);
+    mqttClient.publish(mqttHeat2StateTopic, "OFF");
+  }
+  else if (strTopic == mqttHeat2CommandTopic && strPayload == "ON")
+  { /// HEAT 2 ON ///
+    digitalWrite(D4, LOW);
+    mqttClient.publish(mqttHeat2StateTopic, "ON");
+  }
+  else if (strTopic == mqttCoolCommandTopic && strPayload == "OFF")
+  { /// Cool OFF ///
+    digitalWrite(D5, HIGH);
+    mqttClient.publish(mqttCoolStateTopic, "OFF");
+  }
+  else if (strTopic == mqttCoolCommandTopic && strPayload == "ON")
+  { /// Cool ON /// 
+    digitalWrite(D5, LOW);
+    mqttClient.publish(mqttCoolStateTopic, "ON");
+  }
+  /////////////////// HVAC ////////////////////
+  
   else if (strTopic == mqttStatusTopic && strPayload == "OFF")
   { // catch a dangling LWT from a previous connection if it appears
     mqttClient.publish(mqttStatusTopic, "ON");
