@@ -114,8 +114,10 @@ String mqttGroupCommandTopic;                       // MQTT topic for incoming g
 String mqttStatusTopic;                             // MQTT topic for publishing device connectivity state
 String mqttSensorTopic;                             // MQTT topic for publishing device information in JSON format
 String mqttLightCommandTopic;                       // MQTT topic for incoming panel backlight on/off commands
+String mqttFanCommandTopic;                         // MQTT topic for incoming panel fan on/off commands
 String mqttBeepCommandTopic;                        // MQTT topic for error beep
 String mqttLightStateTopic;                         // MQTT topic for outgoing panel backlight on/off state
+String mqttFanStateTopic;                           // MQTT topic for outgoing panel fan on/off state
 String mqttLightBrightCommandTopic;                 // MQTT topic for incoming panel backlight dimmer commands
 String mqttLightBrightStateTopic;                   // MQTT topic for outgoing panel backlight dimmer state
 String mqttMotionStateTopic;                        // MQTT topic for outgoing motion sensor state
@@ -146,6 +148,8 @@ String lcdFirmwareUrl = "http://haswitchplate.com/update/HASwitchPlate.tft";
 void setup()
 { // System setup
   pinMode(nextionResetPin, OUTPUT);
+  pinMode(D2, OUTPUT);
+  digitalWrite(D2, HIGH);
   digitalWrite(nextionResetPin, HIGH);
   Serial.begin(115200);  // Serial - LCD RX (after swap), debug TX
   Serial1.begin(115200); // Serial1 - LCD TX, no RX
@@ -369,11 +373,14 @@ void mqttConnect()
   mqttLightBrightCommandTopic = "hasp/" + String(haspNode) + "/brightness/set";
   mqttLightBrightStateTopic = "hasp/" + String(haspNode) + "/brightness/state";
   mqttMotionStateTopic = "hasp/" + String(haspNode) + "/motion/state";
+  mqttFanCommandTopic = "hasp/" + String(haspNode) + "/fan/switch";
+  mqttFanStateTopic = "hasp/" + String(haspNode) + "/fan/state";
 
   const String mqttCommandSubscription = mqttCommandTopic + "/#";
   const String mqttGroupCommandSubscription = mqttGroupCommandTopic + "/#";
   const String mqttLightSubscription = "hasp/" + String(haspNode) + "/light/#";
   const String mqttLightBrightSubscription = "hasp/" + String(haspNode) + "/brightness/#";
+  const String mqttFanSubscription = "hasp/" + String(haspNode) + "/fan/#";
 
   // Loop until we're reconnected to MQTT
   while (!mqttClient.connected())
@@ -408,6 +415,10 @@ void mqttConnect()
       if (mqttClient.subscribe(mqttLightSubscription))
       {
         debugPrintln(String(F("MQTT: subscribed to ")) + mqttLightSubscription);
+      }
+      if (mqttClient.subscribe(mqttFanSubscription))
+      {
+        debugPrintln(String(F("MQTT: subscribed to ")) + mqttFanSubscription);
       }
       if (mqttClient.subscribe(mqttLightBrightSubscription))
       {
@@ -599,6 +610,16 @@ void mqttCallback(String &strTopic, String &strPayload)
   { // set the panel dim ON from the light topic, restoring saved dim level
     nextionSendCmd("dim=dims");
     mqttClient.publish(mqttLightStateTopic, "ON");
+  }
+  else if (strTopic == mqttFanCommandTopic && strPayload == "OFF")
+  {
+    digitalWrite(D2, HIGH);
+    mqttClient.publish(mqttFanStateTopic, "OFF");
+  }
+  else if (strTopic == mqttFanCommandTopic && strPayload == "ON")
+  { 
+    digitalWrite(D2, LOW);
+    mqttClient.publish(mqttFanStateTopic, "ON");
   }
   else if (strTopic == mqttStatusTopic && strPayload == "OFF")
   { // catch a dangling LWT from a previous connection if it appears
