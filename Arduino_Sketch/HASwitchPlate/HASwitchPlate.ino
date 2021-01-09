@@ -1631,12 +1631,12 @@ void webHandleRoot()
     }
   }
   debugPrintln(String(F("HTTP: Sending root page to client connected from: ")) + webServer.client().remoteIP().toString());
-  String httpMessage = FPSTR(HTTP_HEADER);
+  String httpMessage = FPSTR(HTTP_HEAD);
   httpMessage.replace("{v}", String(haspNode));
   httpMessage += FPSTR(HTTP_SCRIPT);
   httpMessage += FPSTR(HTTP_STYLE);
   httpMessage += String(HASP_STYLE);
-  httpMessage += FPSTR(HTTP_HEADER_END);
+  httpMessage += FPSTR(HTTP_HEAD_END);
   httpMessage += String(F("<h1>"));
   httpMessage += String(haspNode);
   httpMessage += String(F("</h1>"));
@@ -1762,7 +1762,7 @@ void webHandleSaveConfig()
     }
   }
   debugPrintln(String(F("HTTP: Sending /saveConfig page to client connected from: ")) + webServer.client().remoteIP().toString());
-  String httpMessage = FPSTR(HTTP_HEADER);
+  String httpMessage = FPSTR(HTTP_HEAD);
   httpMessage.replace("{v}", String(haspNode));
   httpMessage += FPSTR(HTTP_SCRIPT);
   httpMessage += FPSTR(HTTP_STYLE);
@@ -1872,7 +1872,7 @@ void webHandleSaveConfig()
   if (shouldSaveConfig)
   { // Config updated, notify user and trigger write to SPIFFS
     httpMessage += String(F("<meta http-equiv='refresh' content='15;url=/' />"));
-    httpMessage += FPSTR(HTTP_HEADER_END);
+    httpMessage += FPSTR(HTTP_HEAD_END);
     httpMessage += String(F("<h1>")) + String(haspNode) + String(F("</h1>"));
     httpMessage += String(F("<br/>Saving updated configuration values and restarting device"));
     httpMessage += FPSTR(HTTP_END);
@@ -1889,7 +1889,7 @@ void webHandleSaveConfig()
   else
   { // No change found, notify user and link back to config page
     httpMessage += String(F("<meta http-equiv='refresh' content='3;url=/' />"));
-    httpMessage += FPSTR(HTTP_HEADER_END);
+    httpMessage += FPSTR(HTTP_HEAD_END);
     httpMessage += String(F("<h1>")) + String(haspNode) + String(F("</h1>"));
     httpMessage += String(F("<br/>No changes found, returning to <a href='/'>home page</a>"));
     httpMessage += FPSTR(HTTP_END);
@@ -1908,12 +1908,12 @@ void webHandleResetConfig()
     }
   }
   debugPrintln(String(F("HTTP: Sending /resetConfig page to client connected from: ")) + webServer.client().remoteIP().toString());
-  String httpMessage = FPSTR(HTTP_HEADER);
+  String httpMessage = FPSTR(HTTP_HEAD);
   httpMessage.replace("{v}", String(haspNode));
   httpMessage += FPSTR(HTTP_SCRIPT);
   httpMessage += FPSTR(HTTP_STYLE);
   httpMessage += String(HASP_STYLE);
-  httpMessage += FPSTR(HTTP_HEADER_END);
+  httpMessage += FPSTR(HTTP_HEAD_END);
 
   if (webServer.arg("confirm") == "yes")
   { // User has confirmed, so reset everything
@@ -1949,13 +1949,13 @@ void webHandleResetBacklight()
   }
 
   debugPrintln(String(F("HTTP: Sending /resetBacklight page to client connected from: ")) + webServer.client().remoteIP().toString());
-  String httpMessage = FPSTR(HTTP_HEADER);
+  String httpMessage = FPSTR(HTTP_HEAD);
   httpMessage.replace("{v}", (String(haspNode) + " HASP backlight reset"));
   httpMessage += FPSTR(HTTP_SCRIPT);
   httpMessage += FPSTR(HTTP_STYLE);
   httpMessage += String(HASP_STYLE);
   httpMessage += String(F("<meta http-equiv='refresh' content='3;url=/' />"));
-  httpMessage += FPSTR(HTTP_HEADER_END);
+  httpMessage += FPSTR(HTTP_HEAD_END);
   httpMessage += String(F("<h1>")) + String(haspNode) + String(F("</h1>"));
   httpMessage += String(F("<br/>Resetting backlight to 100%"));
   httpMessage += FPSTR(HTTP_END);
@@ -1975,12 +1975,12 @@ void webHandleFirmware()
     }
   }
   debugPrintln(String(F("HTTP: Sending /firmware page to client connected from: ")) + webServer.client().remoteIP().toString());
-  String httpMessage = FPSTR(HTTP_HEADER);
+  String httpMessage = FPSTR(HTTP_HEAD);
   httpMessage.replace("{v}", (String(haspNode) + " update"));
   httpMessage += FPSTR(HTTP_SCRIPT);
   httpMessage += FPSTR(HTTP_STYLE);
   httpMessage += String(HASP_STYLE);
-  httpMessage += FPSTR(HTTP_HEADER_END);
+  httpMessage += FPSTR(HTTP_HEAD_END);
   httpMessage += String(F("<h1>")) + String(haspNode) + String(F(" firmware</h1>"));
 
   // Display main firmware page
@@ -2044,13 +2044,13 @@ void webHandleEspFirmware()
   }
 
   debugPrintln(String(F("HTTP: Sending /espfirmware page to client connected from: ")) + webServer.client().remoteIP().toString());
-  String httpMessage = FPSTR(HTTP_HEADER);
+  String httpMessage = FPSTR(HTTP_HEAD);
   httpMessage.replace("{v}", (String(haspNode) + " ESP update"));
   httpMessage += FPSTR(HTTP_SCRIPT);
   httpMessage += FPSTR(HTTP_STYLE);
   httpMessage += String(HASP_STYLE);
   httpMessage += String(F("<meta http-equiv='refresh' content='60;url=/' />"));
-  httpMessage += FPSTR(HTTP_HEADER_END);
+  httpMessage += FPSTR(HTTP_HEAD_END);
   httpMessage += String(F("<h1>"));
   httpMessage += String(haspNode) + " ESP update";
   httpMessage += String(F("</h1>"));
@@ -2086,13 +2086,13 @@ void webHandleLcdUpload()
   if (tftFileSize == 0)
   {
     debugPrintln(String(F("LCD OTA: FAILED, no filesize sent.")));
-    String httpMessage = FPSTR(HTTP_HEADER);
+    String httpMessage = FPSTR(HTTP_HEAD);
     httpMessage.replace("{v}", (String(haspNode) + " LCD update"));
     httpMessage += FPSTR(HTTP_SCRIPT);
     httpMessage += FPSTR(HTTP_STYLE);
     httpMessage += String(HASP_STYLE);
     httpMessage += String(F("<meta http-equiv='refresh' content='5;url=/' />"));
-    httpMessage += FPSTR(HTTP_HEADER_END);
+    httpMessage += FPSTR(HTTP_HEAD_END);
     httpMessage += String(F("<h1>")) + String(haspNode) + " LCD update FAILED</h1>";
     httpMessage += String(F("No update file size reported.  You must use a modern browser with Javascript enabled."));
     httpMessage += FPSTR(HTTP_END);
@@ -2305,13 +2305,13 @@ void webHandleLcdUpdateSuccess()
     }
   }
   debugPrintln(String(F("HTTP: Sending /lcdOtaSuccess page to client connected from: ")) + webServer.client().remoteIP().toString());
-  String httpMessage = FPSTR(HTTP_HEADER);
+  String httpMessage = FPSTR(HTTP_HEAD);
   httpMessage.replace("{v}", (String(haspNode) + " LCD update success"));
   httpMessage += FPSTR(HTTP_SCRIPT);
   httpMessage += FPSTR(HTTP_STYLE);
   httpMessage += String(HASP_STYLE);
   httpMessage += String(F("<meta http-equiv='refresh' content='15;url=/' />"));
-  httpMessage += FPSTR(HTTP_HEADER_END);
+  httpMessage += FPSTR(HTTP_HEAD_END);
   httpMessage += String(F("<h1>")) + String(haspNode) + String(F(" LCD update success</h1>"));
   httpMessage += String(F("Restarting HASwitchPlate to apply changes..."));
   httpMessage += FPSTR(HTTP_END);
@@ -2329,13 +2329,13 @@ void webHandleLcdUpdateFailure()
     }
   }
   debugPrintln(String(F("HTTP: Sending /lcdOtaFailure page to client connected from: ")) + webServer.client().remoteIP().toString());
-  String httpMessage = FPSTR(HTTP_HEADER);
+  String httpMessage = FPSTR(HTTP_HEAD);
   httpMessage.replace("{v}", (String(haspNode) + " LCD update failed"));
   httpMessage += FPSTR(HTTP_SCRIPT);
   httpMessage += FPSTR(HTTP_STYLE);
   httpMessage += String(HASP_STYLE);
   httpMessage += String(F("<meta http-equiv='refresh' content='15;url=/' />"));
-  httpMessage += FPSTR(HTTP_HEADER_END);
+  httpMessage += FPSTR(HTTP_HEAD_END);
   httpMessage += String(F("<h1>")) + String(haspNode) + String(F(" LCD update failed :(</h1>"));
   httpMessage += String(F("Restarting HASwitchPlate to reset device..."));
   httpMessage += FPSTR(HTTP_END);
@@ -2353,12 +2353,12 @@ void webHandleLcdDownload()
     }
   }
   debugPrintln(String(F("HTTP: Sending /lcddownload page to client connected from: ")) + webServer.client().remoteIP().toString());
-  String httpMessage = FPSTR(HTTP_HEADER);
+  String httpMessage = FPSTR(HTTP_HEAD);
   httpMessage.replace("{v}", (String(haspNode) + " LCD update"));
   httpMessage += FPSTR(HTTP_SCRIPT);
   httpMessage += FPSTR(HTTP_STYLE);
   httpMessage += String(HASP_STYLE);
-  httpMessage += FPSTR(HTTP_HEADER_END);
+  httpMessage += FPSTR(HTTP_HEAD_END);
   httpMessage += String(F("<h1>"));
   httpMessage += String(haspNode) + " LCD update";
   httpMessage += String(F("</h1>"));
@@ -2380,9 +2380,9 @@ void webHandleTftFileSize()
     }
   }
   debugPrintln(String(F("HTTP: Sending /tftFileSize page to client connected from: ")) + webServer.client().remoteIP().toString());
-  String httpMessage = FPSTR(HTTP_HEADER);
+  String httpMessage = FPSTR(HTTP_HEAD);
   httpMessage.replace("{v}", (String(haspNode) + " TFT Filesize"));
-  httpMessage += FPSTR(HTTP_HEADER_END);
+  httpMessage += FPSTR(HTTP_HEAD_END);
   httpMessage += FPSTR(HTTP_END);
   webServer.send(200, "text/html", httpMessage);
   tftFileSize = webServer.arg("tftFileSize").toInt();
@@ -2400,13 +2400,13 @@ void webHandleReboot()
     }
   }
   debugPrintln(String(F("HTTP: Sending /reboot page to client connected from: ")) + webServer.client().remoteIP().toString());
-  String httpMessage = FPSTR(HTTP_HEADER);
+  String httpMessage = FPSTR(HTTP_HEAD);
   httpMessage.replace("{v}", (String(haspNode) + " HASP reboot"));
   httpMessage += FPSTR(HTTP_SCRIPT);
   httpMessage += FPSTR(HTTP_STYLE);
   httpMessage += String(HASP_STYLE);
   httpMessage += String(F("<meta http-equiv='refresh' content='10;url=/' />"));
-  httpMessage += FPSTR(HTTP_HEADER_END);
+  httpMessage += FPSTR(HTTP_HEAD_END);
   httpMessage += String(F("<h1>")) + String(haspNode) + String(F("</h1>"));
   httpMessage += String(F("<br/>Rebooting device"));
   httpMessage += FPSTR(HTTP_END);
