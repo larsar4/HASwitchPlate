@@ -155,9 +155,8 @@ String lcdFirmwareUrl = "http://haswitchplate.com/update/HASwitchPlate.tft";
 void setup()
 { // System setup
   pinMode(nextionResetPin, OUTPUT);
-  pinMode(D2, OUTPUT);
-  digitalWrite(D2, HIGH);
   digitalWrite(nextionResetPin, HIGH);
+  thermostatSetup();
   Serial.begin(115200);  // Serial - LCD RX (after swap), debug TX
   Serial1.begin(115200); // Serial1 - LCD TX, no RX
   Serial.swap();
@@ -225,7 +224,7 @@ void setup()
   mqttClient.onMessage(mqttCallback);                           // Setup MQTT callback function
   mqttConnect();                                                // Connect to MQTT
 
-  motionSetup(); // Setup motion sensor if configured
+  // motionSetup(); // Setup motion sensor if configured
 
   if (beepEnabled)
   { // Setup beep/tactile if configured
@@ -645,27 +644,27 @@ void mqttCallback(String &strTopic, String &strPayload)
   /////////////////// HVAC ////////////////////
   else if (strTopic == mqttFanCommandTopic && strPayload == "OFF")
   { /// FAN OFF ///
-    digitalWrite(D2, HIGH);
+    digitalWrite(D1, HIGH);
     mqttClient.publish(mqttFanStateTopic, "OFF");
   }
   else if (strTopic == mqttFanCommandTopic && strPayload == "ON")
   {  /// FAN ON ///
-    digitalWrite(D2, LOW);
+    digitalWrite(D1, LOW);
     mqttClient.publish(mqttFanStateTopic, "ON");
   }
   else if (strTopic == mqttHeat1CommandTopic && strPayload == "OFF")
   { /// HEAT1 OFF ///
-    digitalWrite(D3, HIGH);
+    digitalWrite(D2, HIGH);
     mqttClient.publish(mqttHeat1StateTopic, "OFF");
   }
   else if (strTopic == mqttHeat1CommandTopic && strPayload == "ON")
   { /// HEAT 1 ON ///
-    digitalWrite(D3, LOW);
+    digitalWrite(D2, LOW);
     mqttClient.publish(mqttHeat1StateTopic, "ON");
   }
   else if (strTopic == mqttHeat2CommandTopic && strPayload == "OFF")
   { /// HEAT2 OFF ///
-    digitalWrite(D4, HIGH);
+    digitalWrite(D3, HIGH);
     mqttClient.publish(mqttHeat2StateTopic, "OFF");
   }
   else if (strTopic == mqttHeat2CommandTopic && strPayload == "ON")
@@ -675,12 +674,12 @@ void mqttCallback(String &strTopic, String &strPayload)
   }
   else if (strTopic == mqttCoolCommandTopic && strPayload == "OFF")
   { /// Cool OFF ///
-    digitalWrite(D5, HIGH);
+    digitalWrite(D4, HIGH);
     mqttClient.publish(mqttCoolStateTopic, "OFF");
   }
   else if (strTopic == mqttCoolCommandTopic && strPayload == "ON")
   { /// Cool ON /// 
-    digitalWrite(D5, LOW);
+    digitalWrite(D4, LOW);
     mqttClient.publish(mqttCoolStateTopic, "ON");
   }
   /////////////////// HVAC ////////////////////
@@ -2562,6 +2561,19 @@ bool updateCheck()
   return true;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void thermostatSetup()
+{
+  pinMode(D1, OUTPUT);
+  pinMode(D2, OUTPUT);
+  pinMode(D3, OUTPUT);
+  pinMode(D4, OUTPUT);
+  digitalWrite(D1, HIGH);
+  digitalWrite(D2, HIGH);
+  digitalWrite(D3, HIGH);
+  digitalWrite(D4, HIGH);
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void motionSetup()
 {
