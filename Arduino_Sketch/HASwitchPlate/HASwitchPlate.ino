@@ -124,6 +124,10 @@ const byte nextionSuffix[] = {0xFF, 0xFF, 0xFF};    // Standard suffix for Nexti
 uint32_t tftFileSize = 0;                           // Filesize for TFT firmware upload
 uint8_t nextionResetPin = D6;                       // Pin for Nextion power rail switch (GPIO12/D6)
 //HVAC
+uint8_t FanPin = D1;                                // Pin for Fan relay (thermostat)
+uint8_t Heat1Pin = D2;                              // Pin for Heat1 relay (thermostat)
+uint8_t Heat2Pin = D3;                              // Pin for Heat2 relay (thermostat)
+uint8_t CoolPin = D5;                               // Pin for Cool relay (thermostat)
 String mqttFanCommandTopic;                         // MQTT topic for incoming panel fan on/off commands
 String mqttFanStateTopic;                           // MQTT topic for outgoing panel fan on/off state
 String mqttHeat1CommandTopic;                       // MQTT topic for incoming panel Heat1 on/off commands
@@ -644,42 +648,42 @@ void mqttCallback(String &strTopic, String &strPayload)
   /////////////////// HVAC ////////////////////
   else if (strTopic == mqttFanCommandTopic && strPayload == "OFF")
   { /// FAN OFF ///
-    digitalWrite(D1, HIGH);
+    digitalWrite(FanPin, HIGH);
     mqttClient.publish(mqttFanStateTopic, "OFF");
   }
   else if (strTopic == mqttFanCommandTopic && strPayload == "ON")
   {  /// FAN ON ///
-    digitalWrite(D1, LOW);
+    digitalWrite(FanPin, LOW);
     mqttClient.publish(mqttFanStateTopic, "ON");
   }
   else if (strTopic == mqttHeat1CommandTopic && strPayload == "OFF")
   { /// HEAT1 OFF ///
-    digitalWrite(D2, HIGH);
+    digitalWrite(Heat1Pin, HIGH);
     mqttClient.publish(mqttHeat1StateTopic, "OFF");
   }
   else if (strTopic == mqttHeat1CommandTopic && strPayload == "ON")
   { /// HEAT 1 ON ///
-    digitalWrite(D2, LOW);
+    digitalWrite(Heat1Pin, LOW);
     mqttClient.publish(mqttHeat1StateTopic, "ON");
   }
   else if (strTopic == mqttHeat2CommandTopic && strPayload == "OFF")
-  { /// HEAT2 OFF ///
-    digitalWrite(D3, HIGH);
+  { /// HEAT 2 OFF ///
+    digitalWrite(Heat2Pin, HIGH);
     mqttClient.publish(mqttHeat2StateTopic, "OFF");
   }
   else if (strTopic == mqttHeat2CommandTopic && strPayload == "ON")
   { /// HEAT 2 ON ///
-    digitalWrite(D4, LOW);
+    digitalWrite(Heat2Pin, LOW);
     mqttClient.publish(mqttHeat2StateTopic, "ON");
   }
   else if (strTopic == mqttCoolCommandTopic && strPayload == "OFF")
   { /// Cool OFF ///
-    digitalWrite(D4, HIGH);
+    digitalWrite(CoolPin, HIGH);
     mqttClient.publish(mqttCoolStateTopic, "OFF");
   }
   else if (strTopic == mqttCoolCommandTopic && strPayload == "ON")
   { /// Cool ON /// 
-    digitalWrite(D4, LOW);
+    digitalWrite(CoolPin, LOW);
     mqttClient.publish(mqttCoolStateTopic, "ON");
   }
   /////////////////// HVAC ////////////////////
@@ -2565,14 +2569,14 @@ bool updateCheck()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void thermostatSetup()
 {
-  pinMode(D1, OUTPUT);
-  pinMode(D2, OUTPUT);
-  pinMode(D3, OUTPUT);
-  pinMode(D4, OUTPUT);
-  digitalWrite(D1, HIGH);
-  digitalWrite(D2, HIGH);
-  digitalWrite(D3, HIGH);
-  digitalWrite(D4, HIGH);
+  pinMode(FanPin, OUTPUT);
+  pinMode(Heat1Pin, OUTPUT);
+  pinMode(Heat2Pin, OUTPUT);
+  pinMode(CoolPin, OUTPUT);
+  digitalWrite(FanPin, HIGH);
+  digitalWrite(Heat1Pin, HIGH);
+  digitalWrite(Heat2Pin, HIGH);
+  digitalWrite(CoolPin, HIGH);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void motionSetup()
